@@ -1,16 +1,17 @@
 export const XDAI_SUBGRAPH_URL = process.env.REACT_APP_XDAI_SUBGRAPH_URL;
 export const MAINNET_SUBGRAPH_URL = process.env.REACT_APP_MAINNET_SUBGRAPH_URL;
 export const POAP_API_URL = process.env.REACT_APP_POAP_API_URL;
+export const POAP_API_API_KEY = process.env.REACT_APP_POAP_API_API_KEY;
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const EVENTS_BUCKET_URL = process.env.REACT_APP_EVENTS_BUCKET_URL;
 
 export async function getEvents() {
-  const res = await fetch(`${POAP_API_URL}/events`)
-  return res.json()
+  const response = await fetch(EVENTS_BUCKET_URL);
+  return response.json();
 }
 
 export async function getEvent(id) {
-  const res = await fetch(`${POAP_API_URL}/events/id/${id}`)
-  return res.json()
+    return await fetchPOAPApi(`/events/id/${id}`);
 }
 
 export async function getLayerEvents(url) {
@@ -148,4 +149,40 @@ export async function getxDaiTransfers(amount) {
 
 export async function getMainnetTransfers(amount) {
   return getLayerTransfers(amount, MAINNET_SUBGRAPH_URL);
+}
+
+function setQueryParamsToUrl(url, queryParams) {
+    if (!queryParams) {
+        return;
+    }
+
+    for (const key in queryParams) {
+        const value = queryParams[key];
+
+        if (value === undefined) {
+            continue;
+        }
+
+        url.searchParams.append(key, value);
+    }
+}
+
+function buildPOAPApiHeaders(init) {
+    const headers = {'X-API-Key': POAP_API_API_KEY};
+
+    if (!init || !init.headers) {
+        return headers;
+    }
+
+    return {...(init.headers), ...headers};
+}
+
+async function fetchPOAPApi(path, queryParams, init) {
+    const url = new URL(`${POAP_API_URL}${path}`);
+    const headers = buildPOAPApiHeaders(init);
+
+    setQueryParamsToUrl(url, queryParams);
+
+    const res = await fetch(url, {headers});
+    return res.json();
 }
