@@ -50,7 +50,7 @@ async function fetchPOAPApi(path) {
   const headers = buildPOAPApiHeaders();
 
   const res = await axios.get(url, { headers });
-  return res.json();
+  return res.data;
 }
 
 async function getEvent(id) {
@@ -72,40 +72,38 @@ router.get('/', async (req, res) => {
     const event = await getEvent(eventId);
     const eventTokens = await getEventTokens(eventId, 1, 0);
 
-    const { data } = event;
-
     let tokenCount = eventTokens.total;
-    let description = data.description;
+    let description = event.description;
 
     if (tokenCount > 0) {
       description = '[ Supply: ' + tokenCount + ' ] ' + description;
     }
 
-    if (data) {
+    if (event) {
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.write(`
       <!doctype html>
       <head>
             <title>POAP Gallery</title>
-            <meta name="title" content="${data.name}">
+            <meta name="title" content="${event.name}">
             <meta name="description" content="${description}">
             <meta property="og:type" content="article">
             <meta property="og:site_name" content="POAP Gallery">
-            <meta property="og:title" content="${data.name}">
+            <meta property="og:title" content="${event.name}">
             <meta property="og:description" content="${description}">
-            <meta property="og:image" content="${data.image_url}">
+            <meta property="og:image" content="${event.image_url}">
             <meta property="og:image:height" content="200">
             <meta property="og:image:width" content="200">
             <meta property="twitter:card" content="summary">
             <meta property="twitter:site" content="@poapxyz">
-            <meta property="twitter:title" content="${data.name}">
+            <meta property="twitter:title" content="${event.name}">
             <meta property="twitter:description" content="${description}">
-            <meta property="twitter:image" content="${data.image_url}">
+            <meta property="twitter:image" content="${event.image_url}">
       </head>
       <body>
         <article>
           <div>
-            <h1>${data.name}</h1>
+            <h1>${event.name}</h1>
           </div>
           <div>
             <p>${description}</p>
