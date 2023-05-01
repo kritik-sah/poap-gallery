@@ -120,13 +120,13 @@ export function Event() {
   }, []);
 
   useEffect(() => {
-    if (succeededLoadingEvent()) {
+    if (succeededLoadingEvent() && !tableIsLoading) {
       trackPageView({
         href: window.location.href,
         documentTitle: `POAP Gallery - Event - ${event.name}`,
       });
     }
-  }, [event, succeededLoadingEvent]);
+  }, [event, succeededLoadingEvent, tableIsLoading]);
 
   useEffect(() => {
     // Get new batch of tokens
